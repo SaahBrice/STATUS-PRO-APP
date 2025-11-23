@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload Images - STATUS PRO{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 py-12">
+    <div class="container mx-auto px-4 max-w-4xl">
+        {% csrf_token %}
+        
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-4">
+                Upload Your Product Photos
+            </h1>
+            <p class="text-gray-300 text-xl">Start by uploading one or more product images</p>
+        </div>
+        
+        <!-- Upload Area -->
+        <div class="mb-12">
+            <div id="dropzone" class="group relative">
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
+                <div class="relative bg-gray-900 rounded-2xl p-12 border-2 border-dashed border-gray-700 hover:border-cyan-500 transition-all duration-300 cursor-pointer text-center">
+                    <div class="text-6xl mb-4">📸</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Click or Drag Images Here</h3>
+                    <p class="text-gray-400 mb-4">Support for JPG, PNG, WEBP (Max 10MB per image)</p>
+                    
+                    <!-- Hidden File Inputs -->
+                    <input type="file" id="single-upload" accept="image/*" class="hidden">
+                    <input type="file" id="bulk-upload" accept="image/*" multiple class="hidden">
+                    
+                    <div class="flex gap-4 justify-center">
+                        <button type="button" onclick="document.getElementById('single-upload').click()" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105">
+                            📷 Single Upload
+                        </button>
+                        <button type="button" onclick="document.getElementById('bulk-upload').click()" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-semibold px-8 py-3 rounded-full transition-all duration-300 transform hover:scale-105">
+                            📁 Bulk Upload
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div id="progress-container" class="hidden mb-8">
+            <div class="bg-gray-800 rounded-full h-4 overflow-hidden">
+                <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-purple-500 h-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-center text-gray-400 mt-2">Uploading...</p>
+        </div>
+        
+        <!-- Uploaded Images Gallery -->
+        <div id="gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% for product in products %}
+            <div class="group relative" data-product-id="{{ product.id }}">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-50 transition duration-300"></div>
+                <div class="relative bg-gray-800 rounded-xl overflow-hidden">
+                    <img src="{{ product.thumbnail.url }}" alt="Product" class="w-full h-48 object-cover">
+                    <button type="button" onclick="deleteImage('{{ product.id }}')" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all">
+                        ✕
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Continue Button -->
+        {% if products %}
+        <div class="text-center mt-12">
+            <a href="#" class="group relative inline-block">
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-75 group-hover:opacity-100"></div>
+                <div class="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-lg px-12 py-4 rounded-full transform group-hover:scale-105 transition-all duration-300">
+                    Continue to Product Details →
+                </div>
+            </a>
+        </div>
+        {% endif %}
+        
+    </div>
+</div>
+
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+// Upload functionality
+const singleInput = document.getElementById('single-upload');
+const bulkInput = document.getElementById('bulk-upload');
+const dropzone = document.getElementById('dropzone');
+const gallery = document.getElementById('gallery');
+const progressContainer = document.getElementById('progress-container');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+
+// Single upload
+singleInput.addEventListener('change', function(e) {
+    if (this.files.length > 0) {
+        uploadSingle(this.files[0]);
+    }
+});
+
+// Bulk upload
+bulkInput.addEventListener('change', function(e) {
+    if (this.files.length > 0) {
+        uploadBulk(this.files);
+    }
+});
+
+// Drag and drop
+dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.querySelector('.relative').classList.add('border-cyan-500');
+});
+
+dropzone.addEventListener('dragleave', () => {
+    dropzone.querySelector('.relative').classList.remove('border-cyan-500');
+});
+
+dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.querySelector('.relative').classList.remove('border-cyan-500');
+    
+    if (e.dataTransfer.files.length > 0) {
+        if (e.dataTransfer.files.length === 1) {
+            uploadSingle(e.dataTransfer.files[0]);
+        } else {
+            uploadBulk(e.dataTransfer.files);
+        }
+    }
+});
+
+function uploadSingle(file) {
+    const formData = new FormData();
+    formData.append('original_image', file);
+    
+    showProgress();
+    
+    fetch('/api/upload/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            addToGallery(data);
+            showSuccess('Image uploaded successfully!');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            console.error('Upload error:', data);
+            showError(data.message || 'Upload failed');
+        }
+        hideProgress();
+    })
+    .catch(error => {
+        console.error('Network error:', error);
+        showError('Network error. Please try again.');
+        hideProgress();
+    });
+}
+
+function uploadBulk(files) {
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+        formData.append('images', file);
+    });
+    
+    showProgress();
+    progressText.textContent = `Uploading ${files.length} images...`;
+    
+    fetch('/api/bulk-upload/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccess(`${data.uploaded} images uploaded successfully!`);
+            setTimeout(() => location.reload(), 1000);
+        }
+        if (data.errors && data.errors.length > 0) {
+            showError(`${data.errors.length} images failed to upload`);
+        }
+        hideProgress();
+    })
+    .catch(error => {
+        console.error('Network error:', error);
+        showError('Network error. Please try again.');
+        hideProgress();
+    });
+}
+
+function addToGallery(data) {
+    const div = document.createElement('div');
+    div.className = 'group relative';
+    div.setAttribute('data-product-id', data.product_id || data.id);
+    div.innerHTML = `
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-50 transition duration-300"></div>
+        <div class="relative bg-gray-800 rounded-xl overflow-hidden">
+            <img src="${data.thumbnail_url || data.thumbnail}" alt="Product" class="w-full h-48 object-cover">
+            <button type="button" onclick="deleteImage('${data.product_id || data.id}')" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all">
+                ✕
+            </button>
+        </div>
+    `;
+    gallery.appendChild(div);
+}
+
+function deleteImage(productId) {
+    if (!confirm('Delete this image?')) return;
+    
+    fetch(`/api/delete/${productId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelector(`[data-product-id="${productId}"]`).remove();
+            showSuccess('Image deleted');
+        }
+    })
+    .catch(error => {
+        console.error('Delete error:', error);
+        showError('Failed to delete image');
+    });
+}
+
+function showProgress() {
+    progressContainer.classList.remove('hidden');
+    progressBar.style.width = '50%';
+}
+
+function hideProgress() {
+    progressBar.style.width = '100%';
+    setTimeout(() => {
+        progressContainer.classList.add('hidden');
+        progressBar.style.width = '0%';
+    }, 500);
+}
+
+function showSuccess(message) {
+    alert(message);
+}
+
+function showError(message) {
+    alert('Error: ' + message);
+}
+</script>
+{% endblock %}

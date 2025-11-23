@@ -7,18 +7,18 @@ class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session_key = models.CharField(max_length=40, db_index=True)
     
-    # Product details
-    name = models.CharField(max_length=200)
-    price = models.DecimalField(max_digits=10, decimal_places=0)  # CFA Franc (no decimals)
-    description = models.TextField(blank=True)
-    discount_message = models.CharField(max_length=100, blank=True)
-    contact_info = models.CharField(max_length=100, blank=True)
-    delivery_info = models.CharField(max_length=200, blank=True)
-    call_to_action = models.CharField(max_length=100, blank=True)
+    # Product details - make them optional for now
+    name = models.CharField(max_length=200, blank=True, default='')
+    price = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True, default=0)
+    description = models.TextField(blank=True, default='')
+    discount_message = models.CharField(max_length=100, blank=True, default='')
+    contact_info = models.CharField(max_length=100, blank=True, default='')
+    delivery_info = models.CharField(max_length=200, blank=True, default='')
+    call_to_action = models.CharField(max_length=100, blank=True, default='')
     
     # Image
-    original_image = models.ImageField(upload_to='uploads/%Y/%m/%d/')
-    thumbnail = models.ImageField(upload_to='thumbnails/%Y/%m/%d/', blank=True)
+    original_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', max_length=500)
+    thumbnail = models.ImageField(upload_to='thumbnails/%Y/%m/%d/', blank=True, max_length=500)
     
     # Format selection
     FORMAT_CHOICES = [
@@ -39,7 +39,8 @@ class Product(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.name} - {self.price} CFA"
+        return f"{self.name or 'Unnamed Product'} - {self.price or 0} CFA"
+
 
 
 class GeneratedDesign(models.Model):
