@@ -304,11 +304,15 @@ def preview_designs(request):
 
 
 def generate_designs_for_product(product):
-    """Generate template designs for a product"""
+    """Generate template designs for a product using all layouts"""
     generator = TemplateGenerator()
     
-    # Generate 3 templates
-    templates = generator.generate_templates(product, count=3)
+    # Get number of layouts available
+    layout_count = generator.get_layout_count()
+    
+    # Generate 1 template per layout (total: 5 templates)
+    # Or use templates_per_layout=2 for 10 templates, etc.
+    templates = generator.generate_templates(product, templates_per_layout=1)
     
     # Save each template as GeneratedDesign
     for idx, template_img in enumerate(templates):
@@ -317,18 +321,23 @@ def generate_designs_for_product(product):
         template_img.save(img_io, format='JPEG', quality=95)
         img_io.seek(0)
         
+        # Get layout name for better tracking
+        layout_names = ['centered', 'split', 'hero', 'minimal', 'diagonal']
+        layout_name = layout_names[idx % len(layout_names)]
+        
         # Create GeneratedDesign instance
         design = GeneratedDesign(
             product=product,
-            template_name=f"template_{idx + 1}"
+            template_name=f"{layout_name}_{idx + 1}"
         )
         
         # Save the design file
-        filename = f"{product.id}_{idx + 1}.jpg"
+        filename = f"{product.id}_{layout_name}_{idx + 1}.jpg"
         design.design_file.save(filename, ContentFile(img_io.read()), save=False)
         design.save()
     
     return True
+
 
 
 def preview_designs(request):

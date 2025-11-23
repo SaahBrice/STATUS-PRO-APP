@@ -23,7 +23,8 @@
             </h2>
             
             <!-- Designs Grid -->
-            <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+
                 {% for design in product.designs.all %}
                 <div class="group relative" x-data="{ selected: {{ design.is_selected|lower }} }">
                     <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>

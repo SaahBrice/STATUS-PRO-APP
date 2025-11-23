@@ -1,7 +1,7 @@
 {
   "name": "Bold Impact",
   "category": "bold",
-  "layouts": ["centered", "split"],
-  "backgrounds": ["gradient", "geometric"],
+  "layouts": ["hero", "diagonal", "centered", "split"],
+  "backgrounds": ["gradient", "geometric", "solid"],
   "enabled": true
 }

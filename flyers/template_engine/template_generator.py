@@ -7,9 +7,12 @@ from pathlib import Path
 from .color_generator import ColorGenerator
 from .components.backgrounds import GradientBackground, SolidBackground, GeometricBackground
 from .layouts import CenteredLayout, SplitLayout
+from .layouts.hero_product import HeroProductLayout
+from .layouts.minimal_elegant import MinimalElegantLayout
+from .layouts.dynamic_diagonal import DynamicDiagonalLayout
 
 class TemplateGenerator:
-    """Main template generation engine"""
+    """Main template generation engine with multi-layout support"""
     
     BACKGROUND_MAP = {
         'gradient': GradientBackground,
@@ -19,7 +22,10 @@ class TemplateGenerator:
     
     LAYOUT_MAP = {
         'centered': CenteredLayout,
-        'split': SplitLayout
+        'split': SplitLayout,
+        'hero': HeroProductLayout,
+        'minimal': MinimalElegantLayout,
+        'diagonal': DynamicDiagonalLayout
     }
     
     def __init__(self):
@@ -36,47 +42,50 @@ class TemplateGenerator:
                     themes.append(theme)
         return themes
     
-    def generate_templates(self, product, count=3):
+    def generate_templates(self, product, templates_per_layout=1):
         """
-        Generate multiple template designs for a product
+        Generate multiple template designs using ALL available layouts
         
         Args:
             product: Product model instance
-            count: Number of templates to generate
+            templates_per_layout: How many variations per layout (default: 1)
         
         Returns:
             List of PIL Image objects
         """
         templates = []
-        used_themes = set()
-        
-        # Get dimensions based on output format
         dimensions = self.get_dimensions(product.output_format)
         
-        for i in range(count):
-            # Select a unique theme
-            available_themes = [t for t in self.themes if t['name'] not in used_themes]
-            if not available_themes:
-                available_themes = self.themes  # Reset if all used
-                used_themes.clear()
-            
-            theme = random.choice(available_themes)
-            used_themes.add(theme['name'])
-            
-            # Generate template
-            template = self.generate_single_template(product, theme, dimensions)
-            templates.append(template)
+        # Get all available layouts
+        all_layouts = list(self.LAYOUT_MAP.keys())
+        
+        # Generate templates for each layout
+        for layout_name in all_layouts:
+            for variation in range(templates_per_layout):
+                # Select a theme (cycle through themes)
+                theme_index = (len(templates) % len(self.themes))
+                theme = self.themes[theme_index]
+                
+                # Generate template with this layout
+                template = self.generate_single_template(
+                    product, 
+                    theme, 
+                    dimensions,
+                    force_layout=layout_name,
+                    variation_seed=variation
+                )
+                templates.append(template)
         
         return templates
     
-    def generate_single_template(self, product, theme, dimensions):
-        """Generate a single template"""
+    def generate_single_template(self, product, theme, dimensions, force_layout=None, variation_seed=0):
+        """Generate a single template with specific layout"""
         width, height = dimensions
         
         # Create base image
         image = Image.new('RGBA', (width, height), (255, 255, 255, 0))
         
-        # Get color palette
+        # Get color palette (vary if multiple variations)
         palette = ColorGenerator.get_palette(theme['category'])
         
         # Context for components
@@ -84,17 +93,24 @@ class TemplateGenerator:
             'product': product,
             'color_palette': palette,
             'theme': theme,
-            'dimensions': dimensions
+            'dimensions': dimensions,
+            'variation': variation_seed
         }
         
-        # Apply background
-        bg_type = random.choice(theme['backgrounds'])
+        # Apply background (vary based on seed)
+        available_backgrounds = theme.get('backgrounds', ['gradient', 'solid'])
+        bg_type = available_backgrounds[variation_seed % len(available_backgrounds)]
+        
         if bg_type in self.BACKGROUND_MAP:
             background_component = self.BACKGROUND_MAP[bg_type]()
             image = background_component.apply(image, context)
         
-        # Apply layout
-        layout_type = random.choice(theme['layouts'])
+        # Apply layout (use forced layout or random from theme)
+        if force_layout and force_layout in self.LAYOUT_MAP:
+            layout_type = force_layout
+        else:
+            layout_type = random.choice(theme.get('layouts', ['centered']))
+        
         if layout_type in self.LAYOUT_MAP:
             layout_component = self.LAYOUT_MAP[layout_type]()
             image = layout_component.apply(image, context)
@@ -109,3 +125,7 @@ class TemplateGenerator:
             'landscape': (1920, 1080)
         }
         return dimensions_map.get(output_format, (1080, 1080))
+    
+    def get_layout_count(self):
+        """Return total number of available layouts"""
+        return len(self.LAYOUT_MAP)

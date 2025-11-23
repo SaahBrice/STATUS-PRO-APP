@@ -1,7 +1,7 @@
 {
   "name": "Elegant Pro",
   "category": "elegant",
-  "layouts": ["centered"],
+  "layouts": ["minimal", "centered", "hero"],
   "backgrounds": ["gradient", "solid"],
   "enabled": true
 }

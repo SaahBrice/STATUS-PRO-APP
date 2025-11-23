@@ -1,7 +1,7 @@
 {
   "name": "Modern Fresh",
   "category": "modern",
-  "layouts": ["split", "centered"],
-  "backgrounds": ["solid", "geometric"],
+  "layouts": ["hero", "split", "diagonal", "minimal"],
+  "backgrounds": ["solid", "geometric", "gradient"],
   "enabled": true
 }
