@@ -59,6 +59,22 @@
                             {{ form.output_format }}
                             <p class="text-gray-500 text-sm mt-1">Choose the best format for your platform</p>
                         </div>
+                        
+                        <!-- Background Removal NEW -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-purple-500/30">
+                            <div class="flex items-start">
+                                {{ form.remove_background }}
+                                <div class="ml-3">
+                                    <label for="{{ form.remove_background.id_for_label }}" class="text-gray-300 font-medium cursor-pointer">
+                                        {{ form.remove_background.label }}
+                                    </label>
+                                    <p class="text-gray-500 text-sm mt-1">
+                                        ✨ Creates professional magazine-style designs with transparent product cutouts
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     
                     <!-- Optional Fields -->

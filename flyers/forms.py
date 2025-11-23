@@ -71,7 +71,8 @@ class ProductDetailsForm(forms.ModelForm):
     
     class Meta:
         model = Product
-        fields = ['name', 'price', 'description', 'discount_message', 'contact_info', 'delivery_info', 'call_to_action', 'output_format']
+        fields = ['name', 'price', 'description', 'discount_message', 'contact_info', 
+                  'delivery_info', 'call_to_action', 'output_format', 'remove_background']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-cyan-500 focus:outline-none transition-all',
@@ -115,6 +116,9 @@ class ProductDetailsForm(forms.ModelForm):
             }),
             'output_format': forms.Select(attrs={
                 'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-cyan-500 focus:outline-none transition-all'
+            }),
+            'remove_background': forms.CheckboxInput(attrs={
+                'class': 'w-5 h-5 text-cyan-600 bg-gray-800 border-gray-700 rounded focus:ring-cyan-500'
             })
         }
         labels = {
@@ -125,7 +129,8 @@ class ProductDetailsForm(forms.ModelForm):
             'contact_info': 'Contact Information',
             'delivery_info': 'Delivery Details',
             'call_to_action': 'Call to Action',
-            'output_format': 'Flyer Format *'
+            'output_format': 'Flyer Format *',
+            'remove_background': 'Remove Image Background (Recommended for better effects)'
         }
     
     def clean_price(self):
@@ -139,4 +144,5 @@ class ProductDetailsForm(forms.ModelForm):
         if name and len(name.strip()) < 2:
             raise forms.ValidationError('Product name must be at least 2 characters')
         return name.strip() if name else name
+
 

@@ -19,7 +19,10 @@ class Product(models.Model):
     # Image
     original_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', max_length=500)
     thumbnail = models.ImageField(upload_to='thumbnails/%Y/%m/%d/', blank=True, max_length=500)
-    
+    remove_background = models.BooleanField(
+        default=False,
+        help_text="Remove background from product image for better design effects"
+    )
     # Format selection
     FORMAT_CHOICES = [
         ('square', 'Square (1080x1080) - Instagram'),

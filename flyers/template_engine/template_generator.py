@@ -10,6 +10,9 @@ from .layouts import CenteredLayout, SplitLayout
 from .layouts.hero_product import HeroProductLayout
 from .layouts.minimal_elegant import MinimalElegantLayout
 from .layouts.dynamic_diagonal import DynamicDiagonalLayout
+from .layouts.dynamic_diagonal import DynamicDiagonalLayout
+from .layouts.magazine_style import MagazineStyleLayout
+from .layouts.neon_glow import NeonGlowLayout
 
 class TemplateGenerator:
     """Main template generation engine with multi-layout support"""
@@ -25,7 +28,9 @@ class TemplateGenerator:
         'split': SplitLayout,
         'hero': HeroProductLayout,
         'minimal': MinimalElegantLayout,
-        'diagonal': DynamicDiagonalLayout
+        'diagonal': DynamicDiagonalLayout,
+        'magazine': MagazineStyleLayout,
+        'neon': NeonGlowLayout
     }
     
     def __init__(self):
