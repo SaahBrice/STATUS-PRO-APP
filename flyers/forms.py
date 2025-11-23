@@ -64,3 +64,79 @@ class BulkUploadForm(forms.Form):
         }),
         required=False
     )
+
+
+class ProductDetailsForm(forms.ModelForm):
+    """Form for adding product details"""
+    
+    class Meta:
+        model = Product
+        fields = ['name', 'price', 'description', 'discount_message', 'contact_info', 'delivery_info', 'call_to_action', 'output_format']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-cyan-500 focus:outline-none transition-all',
+                'placeholder': 'e.g., iPhone 13 Pro Max',
+                'maxlength': '200',
+                'required': True
+            }),
+            'price': forms.NumberInput(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-cyan-500 focus:outline-none transition-all',
+                'placeholder': 'e.g., 450000',
+                'min': '0',
+                'step': '1',
+                'required': True,
+                'inputmode': 'numeric'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-cyan-500 focus:outline-none transition-all',
+                'placeholder': 'Brief description to attract customers...',
+                'rows': '3',
+                'maxlength': '500'
+            }),
+            'discount_message': forms.TextInput(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-purple-500 focus:outline-none transition-all',
+                'placeholder': 'e.g., 20% OFF Today Only!',
+                'maxlength': '100'
+            }),
+            'contact_info': forms.TextInput(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-purple-500 focus:outline-none transition-all',
+                'placeholder': 'e.g., WhatsApp: +237 6XX XXX XXX',
+                'maxlength': '100'
+            }),
+            'delivery_info': forms.TextInput(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-purple-500 focus:outline-none transition-all',
+                'placeholder': 'e.g., Free delivery in Douala',
+                'maxlength': '200'
+            }),
+            'call_to_action': forms.TextInput(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-purple-500 focus:outline-none transition-all',
+                'placeholder': 'e.g., Order Now!',
+                'maxlength': '100'
+            }),
+            'output_format': forms.Select(attrs={
+                'class': 'w-full bg-gray-800 text-white rounded-lg px-4 py-3 border border-gray-700 focus:border-cyan-500 focus:outline-none transition-all'
+            })
+        }
+        labels = {
+            'name': 'Product Name *',
+            'price': 'Price (CFA Francs) *',
+            'description': 'Description',
+            'discount_message': 'Special Offer/Discount',
+            'contact_info': 'Contact Information',
+            'delivery_info': 'Delivery Details',
+            'call_to_action': 'Call to Action',
+            'output_format': 'Flyer Format *'
+        }
+    
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price is not None and price < 0:
+            raise forms.ValidationError('Price cannot be negative')
+        return price
+    
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name and len(name.strip()) < 2:
+            raise forms.ValidationError('Product name must be at least 2 characters')
+        return name.strip() if name else name
+

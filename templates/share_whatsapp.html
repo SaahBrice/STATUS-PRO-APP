@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Share to WhatsApp - STATUS PRO{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 py-12 flex items-center justify-center">
+    <div class="container mx-auto px-4 max-w-2xl">
+        
+        <!-- Card -->
+        <div class="relative">
+            <div class="absolute -inset-1 bg-gradient-to-r from-green-500 to-cyan-500 rounded-2xl blur opacity-50"></div>
+            <div class="relative bg-gray-900 rounded-2xl p-8 border border-gray-700">
+                
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">📱</div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Share to WhatsApp</h1>
+                    <p class="text-gray-400">Your flyer is ready to share!</p>
+                </div>
+                
+                <!-- Preview -->
+                <div class="mb-6">
+                    <img src="{{ design.design_file.url }}" alt="Design" class="w-full rounded-lg border-2 border-gray-700">
+                </div>
+                
+                <!-- Share Button (Web Share API) -->
+                <button id="shareButton" onclick="shareImage()" class="w-full group relative mb-4">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-green-500 to-cyan-500 rounded-full blur group-hover:blur-lg transition-all duration-300 opacity-75 group-hover:opacity-100"></div>
+                    <div class="relative bg-gradient-to-r from-green-600 to-cyan-600 hover:from-green-500 hover:to-cyan-500 text-white font-bold text-lg px-8 py-4 rounded-full transition-all duration-300">
+                        📤 Share Image to WhatsApp
+                    </div>
+                </button>
+                
+                <!-- Fallback Download Button -->
+                <div id="fallbackSection" class="hidden">
+                    <p class="text-gray-400 text-center mb-4">Direct sharing not supported on this device</p>
+                    <a href="{% url 'download_design' design.id %}" class="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-full transition-all">
+                        ⬇ Download & Share Manually
+                    </a>
+                </div>
+                
+                <!-- Instructions (shown on mobile after download) -->
+                <div id="instructions" class="hidden mt-6 p-4 bg-gray-800 rounded-lg border border-green-500/30">
+                    <p class="text-green-400 font-semibold mb-2">✓ Image ready!</p>
+                    <ol class="text-gray-300 text-sm space-y-1 list-decimal list-inside">
+                        <li>Open WhatsApp</li>
+                        <li>Go to Status</li>
+                        <li>Tap the camera icon</li>
+                        <li>Select the downloaded image</li>
+                        <li>Post to your Status!</li>
+                    </ol>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <a href="{% url 'preview_designs' %}" class="text-gray-400 hover:text-white transition-all">
+                        ← Back to Designs
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+const imageUrl = "{{ design_url }}";
+const designId = "{{ design.id }}";
+
+async function shareImage() {
+    // Check if Web Share API is supported
+    if (!navigator.share) {
+        showFallback();
+        return;
+    }
+    
+    try {
+        // Fetch the image as a blob
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        
+        // Create a File object from the blob
+        const file = new File([blob], '{{ design.product.name }}_flyer.jpg', { type: 'image/jpeg' });
+        
+        // Check if the browser can share files
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: '{{ design.product.name }}',
+                text: 'Check out my flyer! Created with STATUS PRO'
+            });
+            
+            // Show success message
+            showInstructions();
+        } else {
+            // Fallback if file sharing not supported
+            showFallback();
+        }
+    } catch (error) {
+        console.error('Error sharing:', error);
+        
+        // If user cancelled, do nothing
+        if (error.name === 'AbortError') {
+            return;
+        }
+        
+        // Otherwise show fallback
+        showFallback();
+    }
+}
+
+function showFallback() {
+    document.getElementById('shareButton').classList.add('hidden');
+    document.getElementById('fallbackSection').classList.remove('hidden');
+}
+
+function showInstructions() {
+    document.getElementById('instructions').classList.remove('hidden');
+}
+
+// Auto-detect mobile and adjust UI
+if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    // Mobile device - Web Share API likely supported
+    console.log('Mobile device detected');
+} else {
+    // Desktop - show download option immediately
+    if (!navigator.share) {
+        showFallback();
+    }
+}
+</script>
+{% endblock %}

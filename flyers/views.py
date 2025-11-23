@@ -2,10 +2,24 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .models import Product, UserSession
-from .forms import ProductImageForm, BulkUploadForm
+from .forms import ProductImageForm, BulkUploadForm, ProductDetailsForm
 from .session_utils import get_or_create_session, get_session_products
 from .image_utils import create_thumbnail, optimize_image, generate_safe_filename
 import json
+from django.http import HttpResponse, FileResponse
+from zipfile import ZipFile
+from django.contrib import messages
+import mimetypes
+from .models import Product, UserSession, GeneratedDesign
+from .template_engine.template_generator import TemplateGenerator
+from django.core.files.base import ContentFile
+from io import BytesIO
+
+
+
+
+
+
 
 def home(request):
     """Landing page view"""
@@ -184,3 +198,264 @@ def delete_image_ajax(request, product_id):
             'success': False,
             'message': 'Image not found'
         }, status=404)
+
+
+def product_details_view(request):
+    """View to add details for uploaded products"""
+    user_session = get_or_create_session(request)
+    products = get_session_products(request)
+    
+    # Filter products without complete information
+    incomplete_products = products.filter(name='') | products.filter(price__isnull=True)
+    
+    context = {
+        'products': incomplete_products,
+        'total_products': products.count(),
+        'session_key': request.session.session_key
+    }
+    
+    return render(request, 'product_details.html', context)
+
+
+def product_detail_form_view(request, product_id):
+    """View to edit a specific product's details"""
+    try:
+        product = Product.objects.get(
+            id=product_id,
+            session_key=request.session.session_key
+        )
+    except Product.DoesNotExist:
+        return redirect('upload')
+    
+    if request.method == 'POST':
+        form = ProductDetailsForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            
+            # Check if there are more products to fill
+            remaining = get_session_products(request).filter(
+                name=''
+            ).exclude(id=product_id).first()
+            
+            if remaining:
+                return redirect('product_detail_form', product_id=remaining.id)
+            else:
+                return redirect('preview_designs')
+        else:
+            context = {
+                'form': form,
+                'product': product,
+                'errors': form.errors
+            }
+            return render(request, 'product_form.html', context)
+    else:
+        form = ProductDetailsForm(instance=product)
+        
+        context = {
+            'form': form,
+            'product': product
+        }
+        
+        return render(request, 'product_form.html', context)
+
+
+@require_http_methods(["POST"])
+def save_product_details_ajax(request, product_id):
+    """Handle AJAX product details save"""
+    try:
+        product = Product.objects.get(
+            id=product_id,
+            session_key=request.session.session_key
+        )
+        
+        form = ProductDetailsForm(request.POST, instance=product)
+        
+        if form.is_valid():
+            form.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Product details saved!'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors
+            }, status=400)
+    
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Product not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
+def preview_designs(request):
+    """Placeholder for preview page"""
+    products = get_session_products(request)
+    context = {
+        'products': products
+    }
+    return render(request, 'preview.html', context)
+
+
+def generate_designs_for_product(product):
+    """Generate template designs for a product"""
+    generator = TemplateGenerator()
+    
+    # Generate 3 templates
+    templates = generator.generate_templates(product, count=3)
+    
+    # Save each template as GeneratedDesign
+    for idx, template_img in enumerate(templates):
+        # Save image to BytesIO
+        img_io = BytesIO()
+        template_img.save(img_io, format='JPEG', quality=95)
+        img_io.seek(0)
+        
+        # Create GeneratedDesign instance
+        design = GeneratedDesign(
+            product=product,
+            template_name=f"template_{idx + 1}"
+        )
+        
+        # Save the design file
+        filename = f"{product.id}_{idx + 1}.jpg"
+        design.design_file.save(filename, ContentFile(img_io.read()), save=False)
+        design.save()
+    
+    return True
+
+
+def preview_designs(request):
+    """Preview generated designs"""
+    products = get_session_products(request)
+    
+    # Generate designs for products that don't have them
+    for product in products:
+        if product.designs.count() == 0:
+            try:
+                generate_designs_for_product(product)
+            except Exception as e:
+                print(f"Error generating designs for {product.id}: {e}")
+    
+    # Reload products with designs
+    products = get_session_products(request).prefetch_related('designs')
+    
+    context = {
+        'products': products
+    }
+    return render(request, 'preview.html', context)
+
+
+@require_http_methods(["POST"])
+def toggle_design_selection(request, design_id):
+    """Toggle design selection"""
+    try:
+        import json
+        data = json.loads(request.body)
+        
+        design = GeneratedDesign.objects.get(
+            id=design_id,
+            product__session_key=request.session.session_key
+        )
+        
+        design.is_selected = data.get('selected', False)
+        design.save()
+        
+        return JsonResponse({
+            'success': True,
+            'selected': design.is_selected
+        })
+    except GeneratedDesign.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Design not found'
+        }, status=404)
+
+
+
+
+
+
+def download_design(request, design_id):
+    """Download a single design"""
+    try:
+        design = GeneratedDesign.objects.get(
+            id=design_id,
+            product__session_key=request.session.session_key
+        )
+        
+        # Open the file
+        file_path = design.design_file.path
+        filename = f"{design.product.name}_{design.template_name}.jpg"
+        
+        # Serve the file
+        response = FileResponse(open(file_path, 'rb'), content_type='image/jpeg')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        # Track download
+        design.times_selected += 1
+        design.save()
+        
+        return response
+        
+    except GeneratedDesign.DoesNotExist:
+        return HttpResponse("Design not found", status=404)
+
+
+def download_selected(request):
+    """Download all selected designs as a ZIP file"""
+    # Get all selected designs for this session
+    selected_designs = GeneratedDesign.objects.filter(
+        product__session_key=request.session.session_key,
+        is_selected=True
+    )
+    
+    if not selected_designs.exists():
+        messages.warning(request, 'No designs selected. Please select at least one design.')
+        return redirect('preview_designs')
+    
+    # Create ZIP file in memory
+    zip_buffer = BytesIO()
+    
+    with ZipFile(zip_buffer, 'w') as zip_file:
+        for design in selected_designs:
+            # Read the design file
+            with open(design.design_file.path, 'rb') as f:
+                file_data = f.read()
+            
+            # Add to ZIP with descriptive name
+            filename = f"{design.product.name}_{design.template_name}.jpg"
+            zip_file.writestr(filename, file_data)
+    
+    # Prepare response
+    zip_buffer.seek(0)
+    response = HttpResponse(zip_buffer.read(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="status_pro_flyers.zip"'
+    
+    return response
+
+
+def share_to_whatsapp(request, design_id):
+    """Prepare design for WhatsApp sharing"""
+    try:
+        design = GeneratedDesign.objects.get(
+            id=design_id,
+            product__session_key=request.session.session_key
+        )
+        
+        context = {
+            'design': design,
+            'design_url': request.build_absolute_uri(design.design_file.url)
+        }
+        
+        return render(request, 'share_whatsapp.html', context)
+        
+    except GeneratedDesign.DoesNotExist:
+        return HttpResponse("Design not found", status=404)
+

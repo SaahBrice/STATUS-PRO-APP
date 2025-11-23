@@ -67,7 +67,7 @@
         <!-- Continue Button -->
         {% if products %}
         <div class="text-center mt-12">
-            <a href="#" class="group relative inline-block">
+            <a href="{% url 'product_details' %}" class="group relative inline-block">
                 <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-75 group-hover:opacity-100"></div>
                 <div class="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-lg px-12 py-4 rounded-full transform group-hover:scale-105 transition-all duration-300">
                     Continue to Product Details →

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Product - STATUS PRO{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 py-12">
+    <div class="container mx-auto px-4 max-w-4xl">
+        
+        <!-- Product Image Preview -->
+        <div class="text-center mb-8">
+            <div class="inline-block relative">
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl blur opacity-40"></div>
+                <img src="{{ product.thumbnail.url }}" alt="Product" class="relative w-64 h-64 object-cover rounded-2xl">
+            </div>
+        </div>
+        
+        <!-- Form -->
+        <div class="relative">
+            <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-20"></div>
+            <div class="relative bg-gray-900 rounded-2xl p-8 border border-gray-700">
+                
+                <h2 class="text-3xl font-bold text-white mb-6">Product Information</h2>
+                
+                <form method="post" action="">
+                    {% csrf_token %}
+                    
+                    <!-- Required Fields -->
+                    <div class="space-y-6 mb-8">
+                        <h3 class="text-xl font-semibold text-cyan-400 flex items-center">
+                            <span class="mr-2">⚡</span> Required Information
+                        </h3>
+                        
+                        <!-- Product Name -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            <p class="text-gray-500 text-sm mt-1">The name of your product</p>
+                            {% if form.name.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Price -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.price.label }}</label>
+                            <div class="relative">
+                                {{ form.price }}
+                                <span class="absolute right-4 top-3 text-gray-500">FCFA</span>
+                            </div>
+                            <p class="text-gray-500 text-sm mt-1">Enter price without decimals</p>
+                            {% if form.price.errors %}
+                            <p class="text-red-400 text-sm mt-1">{{ form.price.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Format -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.output_format.label }}</label>
+                            {{ form.output_format }}
+                            <p class="text-gray-500 text-sm mt-1">Choose the best format for your platform</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Optional Fields -->
+                    <div class="space-y-6 mb-8">
+                        <h3 class="text-xl font-semibold text-purple-400 flex items-center">
+                            <span class="mr-2">✨</span> Optional Details (Recommended)
+                        </h3>
+                        
+                        <!-- Description -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            <p class="text-gray-500 text-sm mt-1">A short compelling description</p>
+                        </div>
+                        
+                        <!-- Discount Message -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.discount_message.label }}</label>
+                            {{ form.discount_message }}
+                            <p class="text-gray-500 text-sm mt-1">Highlight any special offers</p>
+                        </div>
+                        
+                        <!-- Contact Info -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.contact_info.label }}</label>
+                            {{ form.contact_info }}
+                            <p class="text-gray-500 text-sm mt-1">How customers can reach you</p>
+                        </div>
+                        
+                        <!-- Delivery Info -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.delivery_info.label }}</label>
+                            {{ form.delivery_info }}
+                            <p class="text-gray-500 text-sm mt-1">Delivery or pickup information</p>
+                        </div>
+                        
+                        <!-- Call to Action -->
+                        <div>
+                            <label class="block text-gray-300 font-medium mb-2">{{ form.call_to_action.label }}</label>
+                            {{ form.call_to_action }}
+                            <p class="text-gray-500 text-sm mt-1">What should customers do next?</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="flex gap-4">
+                        <button type="submit" class="flex-1 group relative">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full blur group-hover:blur-lg transition-all duration-300 opacity-75 group-hover:opacity-100"></div>
+                            <div class="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-lg px-8 py-4 rounded-full transition-all duration-300">
+                                Save & Continue →
+                            </div>
+                        </button>
+                        <a href="{% url 'product_details' %}" class="px-8 py-4 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold rounded-full transition-all">
+                            Back
+                        </a>
+                    </div>
+                    
+                </form>
+                
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+
+{% endblock %}

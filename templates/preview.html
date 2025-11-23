@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Preview Designs - STATUS PRO{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 py-12">
+    <div class="container mx-auto px-4 max-w-7xl">
+        
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-4">
+                Your Professional Flyers ✨
+            </h1>
+            <p class="text-gray-300 text-xl">Choose your favorites and share them with the world!</p>
+        </div>
+        
+        {% for product in products %}
+        <!-- Product Section -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-white mb-6 flex items-center">
+                <span class="mr-3">{{ product.name }}</span>
+                <span class="text-cyan-400 text-2xl">{{ product.price|floatformat:0 }} FCFA</span>
+            </h2>
+            
+            <!-- Designs Grid -->
+            <div class="grid md:grid-cols-3 gap-6">
+                {% for design in product.designs.all %}
+                <div class="group relative" x-data="{ selected: {{ design.is_selected|lower }} }">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
+                    <div class="relative bg-gray-900 rounded-2xl overflow-hidden border-2 transition-all duration-300"
+                         :class="selected ? 'border-cyan-500 shadow-2xl shadow-cyan-500/50' : 'border-gray-700'">
+                        
+                        <!-- Design Image -->
+                        <div class="relative">
+                            <img src="{{ design.design_file.url }}" alt="{{ design.template_name }}" class="w-full h-auto">
+                            <div x-show="selected" class="absolute top-4 right-4 bg-cyan-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl shadow-lg">
+                                ✓
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="p-4 space-y-2">
+                            <!-- Select Button -->
+                            <button @click="selected = !selected; toggleSelection('{{ design.id }}', selected)" 
+                                    class="w-full py-3 rounded-lg font-semibold transition-all transform hover:scale-105"
+                                    :class="selected ? 'bg-cyan-500 hover:bg-cyan-600 text-white shadow-lg' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'">
+                                <span x-show="!selected">👆 Select This</span>
+                                <span x-show="selected">✓ Selected</span>
+                            </button>
+                            
+                            <!-- Download & Share Row -->
+                            <div class="flex gap-2">
+                                <a href="{% url 'download_design' design.id %}" class="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all text-center transform hover:scale-105">
+                                    ⬇ Download
+                                </a>
+                                <a href="{% url 'share_whatsapp' design.id %}" target="_blank" class="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all text-center transform hover:scale-105">
+                                    📱 WhatsApp
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-3 text-center py-12">
+                    <div class="inline-block">
+                        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-cyan-500 mb-4"></div>
+                        <p class="text-gray-400 text-lg">Generating your amazing designs...</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Bottom Actions -->
+        <div class="text-center space-y-6 mt-16">
+            <!-- Download Selected -->
+            <a href="{% url 'download_selected' %}" class="group relative inline-block">
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-75 group-hover:opacity-100 animate-pulse"></div>
+                <div class="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-xl px-16 py-6 rounded-full transform group-hover:scale-105 transition-all duration-300 shadow-2xl">
+                    📥 Download All Selected Flyers
+                </div>
+            </a>
+            
+            <!-- Start Over -->
+            <div>
+                <a href="{% url 'upload' %}" class="text-gray-400 hover:text-white transition-all">
+                    ← Create More Flyers
+                </a>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+function toggleSelection(designId, isSelected) {
+    fetch(`/api/design/${designId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ selected: isSelected })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Selection updated:', data);
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

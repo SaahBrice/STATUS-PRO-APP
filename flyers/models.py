@@ -54,7 +54,8 @@ class GeneratedDesign(models.Model):
     
     # Selection tracking
     is_selected = models.BooleanField(default=False)
-    
+    times_selected = models.IntegerField(default=0) 
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     
