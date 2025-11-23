@@ -1,13 +1,177 @@
 {% extends 'base.html' %}
 
+{% block title %}STATUS PRO - Create Professional Flyers in Seconds{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="text-center">
-        <h1 class="text-5xl font-bold text-primary-600">STATUS PRO</h1>
-        <p class="mt-4 text-lg text-gray-600">Tailwind CSS is working!</p>
-        <p class="mt-2 text-sm text-gray-400">
-            Session: {{ session_key }}
-        </p>
+<!-- Ultra-Futuristic Hero Section -->
+<div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    
+    <!-- Animated Gradient Orbs -->
+    <div class="absolute top-0 -left-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+    <div class="absolute top-0 -right-40 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-40 left-20 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    
+    <!-- Grid Pattern Overlay -->
+    <div class="absolute inset-0 bg-grid-pattern opacity-20"></div>
+    
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-12 relative z-10">
+        
+        <!-- Logo/Brand with Neon Effect -->
+        <div class="text-center mb-16 opacity-0 animate-fade-in-up">
+            <div class="inline-block relative">
+                <h1 class="text-7xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 tracking-tight animate-gradient-x">
+                    STATUS<span class="text-white">PRO</span>
+                </h1>
+                <div class="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full shadow-neon"></div>
+            </div>
+        </div>
+        
+        <!-- Explosive Headline -->
+        <div class="max-w-5xl mx-auto text-center mb-12 opacity-0 animate-fade-in-up delay-100">
+            <h2 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
+                Turn Photos Into
+                <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300 animate-gradient-x">
+                    Stunning Flyers
+                </span>
+                <br>
+                <span class="text-4xl md:text-6xl text-gray-300">In 30 Seconds ⚡</span>
+            </h2>
+            <p class="text-2xl text-gray-300 leading-relaxed max-w-3xl mx-auto font-light">
+                Zero design skills. Just upload your product, add details, and watch the magic happen. 
+                <span class="text-cyan-400 font-semibold">Perfect for WhatsApp Status.</span>
+            </p>
+        </div>
+        
+        <!-- CTA Button with Intense Glow -->
+        <div class="text-center mb-24 opacity-0 animate-fade-in-up delay-200">
+            <a href="#" class="group relative inline-block">
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-lg group-hover:blur-xl transition-all duration-300 opacity-75 group-hover:opacity-100 animate-pulse-glow"></div>
+                <div class="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-xl px-16 py-6 rounded-full transform group-hover:scale-105 transition-all duration-300 shadow-2xl">
+                    🚀 Create My First Flyer Now
+                </div>
+            </a>
+            <p class="text-cyan-400 font-semibold mt-6 text-lg">💎 100% Free • ⚡ No Signup • 🎨 Pro Results</p>
+        </div>
+        
+        <!-- Benefits Grid with Neon Cards -->
+        <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 mb-24 opacity-0 animate-fade-in-up delay-300">
+            
+            <!-- Card 1 -->
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
+                <div class="relative bg-gray-900 rounded-2xl p-8 border border-cyan-500/30 hover:border-cyan-500 transition-all duration-300">
+                    <div class="text-6xl mb-4">⚡</div>
+                    <h3 class="text-2xl font-bold text-white mb-3">30-Second Speed</h3>
+                    <p class="text-gray-400 text-lg leading-relaxed">From upload to WhatsApp Status in under 30 seconds. Faster than making coffee!</p>
+                </div>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
+                <div class="relative bg-gray-900 rounded-2xl p-8 border border-purple-500/30 hover:border-purple-500 transition-all duration-300">
+                    <div class="text-6xl mb-4">🎨</div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Zero Design Skills</h3>
+                    <p class="text-gray-400 text-lg leading-relaxed">AI-powered templates do the heavy lifting. You just point and click.</p>
+                </div>
+            </div>
+            
+            <!-- Card 3 -->
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-orange-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
+                <div class="relative bg-gray-900 rounded-2xl p-8 border border-pink-500/30 hover:border-pink-500 transition-all duration-300">
+                    <div class="text-6xl mb-4">💎</div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Pro-Level Quality</h3>
+                    <p class="text-gray-400 text-lg leading-relaxed">Designs that look like you hired an expensive agency. But totally free.</p>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Sample Preview Section -->
+        <div class="max-w-5xl mx-auto text-center opacity-0 animate-fade-in-up delay-400">
+            <h3 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-4">
+                See The Magic ✨
+            </h3>
+            <p class="text-gray-400 text-xl mb-12">These flyers were created in seconds (not hours!)</p>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="group relative">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
+                    <div class="relative h-80 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700 hover:border-cyan-500 transition-all">
+                        <p class="text-gray-600 font-semibold">🎯 Sample Coming Soon</p>
+                    </div>
+                </div>
+                <div class="group relative">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
+                    <div class="relative h-80 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700 hover:border-purple-500 transition-all">
+                        <p class="text-gray-600 font-semibold">🔥 Sample Coming Soon</p>
+                    </div>
+                </div>
+                <div class="group relative">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
+                    <div class="relative h-80 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700 hover:border-pink-500 transition-all">
+                        <p class="text-gray-600 font-semibold">✨ Sample Coming Soon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </div>
+
+<style>
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    
+    @keyframes gradient-x {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% { opacity: 0.75; }
+        50% { opacity: 1; }
+    }
+    
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+    
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+    
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+    
+    .animate-gradient-x {
+        background-size: 200% auto;
+        animation: gradient-x 3s ease infinite;
+    }
+    
+    .animate-pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    .shadow-neon {
+        box-shadow: 0 0 20px rgba(147, 51, 234, 0.8),
+                    0 0 40px rgba(147, 51, 234, 0.5),
+                    0 0 60px rgba(147, 51, 234, 0.3);
+    }
+    
+    .bg-grid-pattern {
+        background-image: 
+            linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+    }
+</style>
 {% endblock %}
