@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="text-center">
+        <h1 class="text-5xl font-bold text-primary-600">STATUS PRO</h1>
+        <p class="mt-4 text-lg text-gray-600">Tailwind CSS is working!</p>
+        <p class="mt-2 text-sm text-gray-400">
+            Session: {{ session_key }}
+        </p>
+    </div>
+</div>
+{% endblock %}
